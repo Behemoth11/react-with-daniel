@@ -1,0 +1,14 @@
+{
+  "name": "transition-manager",
+  "version": "1.0.0",
+  "description": "Managese complex sequencial transition and route change in React ",
+  "main": "intex.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^17.0.2"
+  }
+}
