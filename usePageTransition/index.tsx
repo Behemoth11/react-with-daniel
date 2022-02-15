@@ -1,7 +1,5 @@
 "strict";
 import React from "react";
-import { useFirstTimeLoading } from "./useFirstTimeLoading";
-
 
 type lifeCycleCallback = (ctx: { pageId: string; nextPageId: string }) => void;
 
@@ -12,12 +10,16 @@ interface lifeCycle {
   onExit: lifeCycleCallback[];
 }
 
+/**
+ * Create a desynchronized react component to help with page transition.
+ *
+ * @param children children needing to be delayed;
+ */
+
 // type waitList = Set<string>
 export const usePageTransition = (
   children: React.ReactNode & { key: string }
 ) => {
-  const firstTimeLoading = useFirstTimeLoading();
-
   const [activePage, setActivePage] = React.useState(children);
 
   // waitList is a set of all id with whose waiFor( id ) was called.
@@ -32,8 +34,10 @@ export const usePageTransition = (
 
   const [pageState, setPageState] = React.useState<"enter" | "exit">("enter");
 
-  const tryChange = (newPageState: "enter"| "exit") =>
-    setPageState((prevState) => (prevState === newPageState? "exit" : "enter"));
+  const tryChange = (newPageState: "enter" | "exit") =>
+    setPageState((prevState) =>
+      prevState === newPageState ? "exit" : "enter"
+    );
 
   // const pageState = useSequentialState(["exit", "enter"] as const);
 
@@ -73,11 +77,10 @@ export const usePageTransition = (
   }, [activePage]);
 
   React.useEffect(() => {
-    if (firstTimeLoading) return;
     // there is a page change but the component is the same as the active one the page assumes a enter state;
     // If on page A. One could route to page B. The children would change but not finish updating. Then if he
     // returns to page A, the page would change but the corresponding state would be a from exit to enter.
-    else if (children.key === activePage.key) {
+    if (children.key === activePage.key) {
       tryChange("enter");
       executeLifeCycleCallBack("onEnter");
     } else {
@@ -111,8 +114,12 @@ export const usePageTransition = (
   };
 };
 
-
 export default usePageTransition;
+
+
+export const useRoutingStateContext = () => {
+  return React.useContext(RoutingStateContext);
+};
 
 interface RoutingStateContext {
   id: string;
@@ -144,8 +151,4 @@ export const RoutingStateProvider: React.FC<RoutingStateContext> = ({
       {children}
     </RoutingStateContext.Provider>
   );
-};
-
-export const useRoutingStateContext = () => {
-  return React.useContext(RoutingStateContext);
 };
